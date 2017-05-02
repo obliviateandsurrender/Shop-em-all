@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block styles %}
+{{super ()}}
+   <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='product/product.css')}}">
+{% endblock %}
+
+{% block body %}
+   <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='product/product.css')}}">
+     <div class="container">
+    <br/>
+    <br/>
+     <table border="1">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Total Amount</th>
+            <th colspan = '2'>Stock</th>
+        </tr>
+      {% for pdt in product %}
+        <tr>
+        <td> {{ pdt.id }} </td>
+        <td> {{ pdt.name}} </td>
+        <td> {{ pdt.amount}}</td>
+        <td align=center>  
+        <form action="{{url_for('buyers.updcart')}}" method='POST'>
+        <input type="number" name="quantity" id="quant" min="1" max="1000" value="{{ pdt.quantity}}"" style="padding-right: 20px">
+        <input type="" name='id' value="{{pdt.id}}" hidden >
+        <input type="submit" value="UPDATE" id="upda" class="btn button edit" style="padding-left: 20px; margin-left: 20px" >
+        </form>
+     
+        <form action="{{url_for('buyers.delcart')}}" method='POST'>
+        <input type="" name='id' value="{{pdt.id}}" hidden >
+        <input type="submit" value="REMOVE" id="dela" class="btn button delete " >
+        </form>
+
+        
+         
+        </tr>
+      {% endfor %}
+      </table>
+      <br/>
+      <br/>
+      <br/>
+      <br/>
+      
+      
+      <section id="cart">
+        <div class="container" style="height:100vh">
+            <div class="row text-center">
+                <div class="col-md-6">
+                    <span class="fa-stack fa-4x">
+                        <i class="fa fa-circle fa-stack-2x text-primary"></i>
+                        <a class="fa fa-caret-square-o-left fa-stack-1x fa-inverse" href="{{ url_for('buyers.showallit')}}"></a>
+                    </span>
+                    <h4 class="service-heading">Continue shopping</h4>
+              
+                </div>
+                <div class="col-md-6">
+                    <span class="fa-stack fa-4x">
+                        <i class="fa fa-circle fa-stack-2x text-primary"></i>
+                        <a class="fa fa-suitcase fa-stack-1x fa-inverse" href="{{url_for('buyers.buynow')}}"></a>
+                    </span>
+                    <h4 class="service-heading" >Buy</h4>
+                             
+                </div>
+            </div>
+        </div>
+    </section> 
+
+{% endblock %}

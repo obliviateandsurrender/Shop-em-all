@@ -1,0 +1,18 @@
+{% extends "base2.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+  
+
+{% block body %} 
+<div>
+    <header>
+        <div class = "container" style = "height:100vh">
+            <div class = "intro-text">
+                <a href = "{{ url_for('sellers.addnew') }}" class = "page-scroll btn btn-xl">Add new Product</a> 
+                <a href = "{{ url_for('sellers.showall') }}" class = "page-scroll btn btn-xl">Update stock</a>
+            </div>
+            
+        </div>
+    </header>   
+</div> 
+{% endblock %}
+

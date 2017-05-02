@@ -1,0 +1,61 @@
+  body {
+  background-image: url('../img/food.jpg');
+  background-repeat: repeat;
+  background-attachment: scroll;  
+  }
+ 
+  table {
+  line-height: 40px;
+  border-spacing: 0;
+  border: 5px solid;
+  width: 1000px;
+  padding: 5px;
+  border-radius: .45rem;
+  background-color: #000000;
+  color: #FFAA00
+  }
+  tr{
+  height: 50px;
+  }
+  th{
+  text-align: center;
+  padding: 0px 15px 0px 20px;
+  border-bottom: 1px solid #ddd;
+  background-color: #222222;
+  }
+
+  tr:hover {
+  cursor: default;
+  background-color: #000000;
+  }
+
+  td {
+  padding: 0px 15px 0px 20px;
+  color: white;
+  background-color: #222222;
+  }
+   
+  input {
+  color: white;
+  background-color: #222222;
+text-align: center;
+  padding: 0px 15px 0px;
+	height: 35px;  
+	width: 125px;
+}
+}
+
+  .btn {
+  cursor: pointer;
+  vertical-align: middle;
+color: white
+  }
+
+  .edit:hover {
+  color: #0a79df;
+  }
+
+  .delete:hover {
+  color: #dc2a2a;
+  }
+

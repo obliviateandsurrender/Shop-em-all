@@ -1,0 +1,64 @@
+{% extends "base2.html" %}
+
+
+{% block styles %}
+{{super()}}
+   <link rel="stylesheet" href="{{url_for('static', filename='product/product.css')}}">
+{% endblock %}
+
+{% block body %}
+   <style type="text/css">
+      .table tr: th{
+      background-color: #000000; 
+    }
+      .table tr:nth-child(even) td{
+      background-color: #565956; 
+    }
+      .table tr:nth-child(odd) td{
+      background-color: #343834;
+    }
+     .table-hover tr:hover td {
+      background-color: #232020;
+    }
+
+   </style>
+   <link rel="stylesheet" href="{{url_for('static', filename='product/product.css')}}"> 
+    <div class="container">
+    <br/>
+    <br/>
+     <table id = "seller-product" class="table table-hover" border="0">
+        <tr >
+            <th style ="padding-top: 20px; padding-bottom: 10px;">S. No.</th>
+            <th style ="padding-top: 20px; padding-bottom: 10px;">Name</th>
+            <th style ="padding-top: 10px; padding-bottom: 10px;">Current Stock <br/> (Toggle and Update)</th>
+            <th style ="padding-top: 20px; padding-bottom: 10px;" colspan = 2 ></th>
+        </tr>
+      {% for pdt in product %}
+        <tr>
+        <td align=center style ="padding-top: 25px"> {{ loop.index }} </td>
+        <td align=center style ="padding-top: 25px"> {{ pdt.name}} </td>
+        <td align=center style ="padding-top: 20px"> 
+        <form action="{{url_for('sellers.upstock')}}" method='get'>
+        <input type="number" name="quantity" id="quant" min="1" max="1000" value="{{ pdt.stock }}" style="padding-right: 20px; height: 40.2px;">
+        <input type="" name='id' value="{{pdt.id}}" hidden >
+        </td>
+        <td style ="padding-top: 25px">
+        <span class="input-group-btn"> <button class="btn-default btn edit" id = "upda" type="submit"> <span class="glyphicon glyphicon-pencil"></span></button></span>
+        </td>
+        </form>
+        <form action="{{url_for('sellers.delprod')}}" method='get'>
+        <input type="" name='id' value="{{pdt.id}}" hidden >
+        <td style ="padding-top: 25px"> 
+        <span class="input-group-btn"> <button class="btn-default btn delete" id = "dela" type="submit"> <span class="glyphicon glyphicon-trash"></span></button>
+        </td>
+        </form>
+        </tr>
+      {% endfor %}
+
+      </table>
+      <a href="{{url_for('sellers.dash')}}">
+       <button class="btn btn-lg btn-primary btn-block" type="submit" >Dashboard</button>
+       </a>
+    </div> <!-- /container -->
+    
+{% endblock %}

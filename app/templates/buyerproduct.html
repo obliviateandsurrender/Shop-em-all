@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+
+{% block styles %}
+{{super()}}
+   <link rel="stylesheet" href="{{url_for('static', filename='product/bproduct.css')}}">
+{% endblock %}
+
+{% block body %}
+   <link rel="stylesheet" href="{{url_for('static', filename='product/bproduct.css')}}">
+<style type="text/css">
+    
+     .table tr: th{
+      background-color: #000000; 
+    }
+      .table tr:nth-child(even) td{
+      background-color: #565956; 
+    }
+      .table tr:nth-child(odd) td{
+      background-color: #343834;
+    }
+     .table-hover tr:hover td {
+      background-color: #232020;
+    } 
+</style>
+
+   <div class="container" style = "margin-top: 100px; margin-left: auto; margin-right: auto; max-width: 1000px; float: none;">
+    <br/>
+    <br/>
+     <table id = "buyer-product" class="table table-hover" border="0" align="center" style = " width: 1000px;" >
+        <tr>
+            <th style ="padding-top: 20px; padding-bottom: 10px;">S. No.</th>
+            <th style ="padding-top: 20px; padding-bottom: 10px;">Name</th>
+            <th style ="padding-top: 20px; padding-bottom: 10px;">Price</th>
+            <th style ="padding-top: 20px; padding-bottom: 10px;">Stock left</th>
+
+            <th colspan = '2' style ="padding-top: 20px; padding-bottom: 10px;">Quantity</th>
+        </tr>
+      {% for pdt in product %}
+        <tr>
+        <td align=center style ="padding-top: 25px"> {{ loop.index }} </td>
+        <td align=center style ="padding-top: 25px"> <a id="kan" href= "" onclick="func({{pdt.id}})" > {{pdt.name }} </a></td>
+	    <td align=center style ="padding-top: 25px"> {{ pdt.price }} </td>
+      <td align=center style ="padding-top: 25px"> {{ pdt.stock }} </td>
+      
+        <form method='POST' action="{{url_for('buyers.addcart')}}">
+         <input type="" name='buyer_id' value="{{current_user.id}}" hidden >
+         <input type="" name='product_id' value="{{pdt.id}}" hidden >
+         <input type="" name='name' value="{{pdt.name}}" hidden >
+         <input type="" name='window' value="menu" hidden >
+        <td align=center style ="padding-top: 20px">
+        <input type="number" name="quantity" value=1 min="1" max="100" placeholder=1>
+        </td>
+        <td style ="padding-top: 25px" align = center >
+        <span class="input-group-btn"> <button class="btn-default btn edit" type="submit"> <span class="glyphicon glyphicon-shopping-cart"></span></button></span>
+        </td>
+        </form>
+        </tr>
+      {% endfor %}
+      </table>
+    </div> <!-- /container -->
+    <script type="text/javascript">
+   function func(id)
+    {
+        
+        $("a").prop("href", "https://192.168.43.138/product?prodid="+id)    
+        return true;
+    };
+  </script>
+    
+{% endblock %}
+

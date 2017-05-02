@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+
+{% block styles %}
+{{super()}}
+   <link rel="stylesheet" href="{{url_for('static', filename='product/cproduct.css')}}">
+{% endblock %}
+
+{% block body %}
+   <link rel="stylesheet" href="{{url_for('static', filename='product/cproduct.css')}}"> 
+<div class="container" style = "position: absolute ; left: 400px; ">
+   <br/>
+   <br/>
+   <br/>
+   <br/>
+   <br/>
+   <div class= "col-sm-12" style = "margin-top: 100px; " align =center> 
+   <h1> {{ product.name }} </h1> 
+   </div>
+   <br/>
+   <br/>
+   <br/>
+   <br/>
+   <br/>    
+
+    <div class="col-sm-8" style = "margin-top: 50px;">
+         <img src="{{ url_for('static' ,filename = product.id)}}.jpg" height = 600px widht = 800px >
+    </div>
+
+    <div class="col-sm-4" style = "margin-top: 50px;" >
+     <table border="0">
+        <tr>
+        <td> <h4> Price </h4> {{ product.price }} </td>
+        <td align="center" id="stock" "> <h4> Stock Left </h4> {{ product.stock }} 
+         <script>
+
+        function myFunction(stock) 
+        {
+         console.log("hidden")
+        if (stock == 0)
+        {
+        $("#stock").html("<h4> Out of stock </h4>")   
+        console.log($("#stock").html)
+        document.getElementById("addtocart").disabled = true; 
+        console.log(document.getElementById("addtocart").disabled ); 
+
+        }
+        };
+ 
+           myFunction({{product.stock}});        
+           
+        </script>
+        </td>
+        </tr>
+        <form action="{{url_for('buyers.addcart')}}" method='POST'>
+        <tr> 
+        <td colspan="2"><h4> Quantity </h4></td>
+        </tr>
+        <tr>
+        <td colspan = "2"> <input type="number" name="quantity" id="quant" min="1" max="10" value="1" style="padding-right: 20px"> 
+            <input type="" name='buyer_id' value="{{current_user.id}}" hidden >
+         <input type="" name='product_id' value="{{product.id}}" hidden >
+         <input type="" name='name'   value="{{product.name}}" hidden >
+         <input type="" name='window' value="product" hidden >
+        </td>
+        </tr>
+         <tr> <td colspan="2"></td></tr>
+        <tr>
+        <td colspan="2"><h4> Description  </h4>  </td>
+        </tr>
+        <tr>
+        <td colspan="2"> {{ product.description }} </td>
+        </tr>
+        <tr>
+        <td colspan="2"><h4> Tags  </h4>  </td>
+        </tr>
+        <tr>
+        <td colspan="2"> {{ product.tags }} </td>
+        </tr>
+        <tr> <td colspan="2"></td></tr>
+        <tr> 
+        <td colspan="1" style ="padding-top: 25px" align = center>
+        <span class="input-group-btn"> <button class="btn-primary btn edit life" id="addtocart" type="submit" >ADD TO CART </button>
+        </span>
+        <br/> 
+        </td>
+        </form>
+        <td colspan="1" style ="padding-top: 25px" align = center>
+        <form method="POST" action="{{url_for('buyers.sendemail')}}">
+        <input type="" name='bid' value="{{current_user.id}}" hidden >
+        <input type="" name='pid' value="{{product.id}}" hidden >
+        <span class="input-group-btn"> <button class="btn-primary btn edit life" id="addtocart" type="submit" >NOTIFY REGARDING STOCK</button>
+        </span>
+        <br/> 
+        </form>
+        </td>
+        
+
+        </tr>
+      </table>
+      </div>
+    
+    <div class="col-sm-12" style = "margin-top: 100px; margin-bottom: 20px" >
+        <div class="comments-container">
+            <h2>ADD A COMMENT </h2>
+            <div class="comment-box">
+                    <div class="comment-head">
+                        <h3 class="comment-name by-author"><span class="comment-author"> Hi! We would like to hear from you </span></a></h3>
+                    </div>
+                <div class="comment-content" style="text-align: justify;">
+                    <div class="form-group">
+                    
+                        <form method='POST' action="{{url_for('buyers.addComment')}}">
+                        <input type="" name='proid' value="{{product.id}}" hidden >
+                        <input type="" name='buyerid' value="{{current_user.id}}" hidden >
+                        <textarea class="form-control" rows="3"  cols="80" name='body' value = "I am a comment, fuck me."> </textarea>
+                        <br/>
+                        <span class="input-group-btn"> <button class="btn-primary btn" type="submit" >ADD COMMENT</button></span>       
+                        </form>
+                        <br/>
+                    </div>
+                </div>
+            </div>
+            <ul id="comments-list" class="comments-list"> 
+             <h3>PREVIOUS COMMENTS</h3>
+                <div class="comment-main-level" style="bottom :50% ">
+                    {% for comment in comment %}
+
+                    <div class="col-sm-8 common" style = " margin-top: 50px; margin-left: 100px;">     
+                        <span class= "badge">{{ loop.index }}</span>
+                        <h6> {{comment.body}} </h6>
+                    </div>
+                    <br/>
+                    {% endfor %}
+                </div>
+            </ul>
+        </div> 
+    </div>
+</div>  
+    <script type="text/javascript">
+   function func(id) {   
+        $("a").prop("href", "http://127.0.0.1:5000/product?prodid="+id)    
+        return true;
+    };
+
+
+ </script>
+    
+{% endblock %}
+

@@ -1,0 +1,426 @@
+﻿#+TITLE: Shopping Portal
+#+DATE: 17/04/2017
+#+TEAM MEMBERS: UTKARSH (20161073), KANAY GUPTA (20161098), NIKHIL BANSAL (20161065)
+
+* Overview
+  - The business-to-consumer aspect of electronic commerce (e-commerce) is the most visible business use of the World Wide Web.  
+  - The primary goal of an e-commerce site is to sell goods and services online. 
+  - This project deals with developing an e-commerce website for Online Sale. 
+  - It provides the user with a catalog of different books available for purchase in the store.  
+  - In order to facilitate online purchase a shopping cart is provided to the user.
+  - It provides the seller to register on our site and add their products for selling.
+  - This document will discuss each of the underlying technologies to create and implement an e-commerce website
+
+    
+* Acknowledgments
+  - We as a group stood together for each other through out all the sleepless nights this project has taken. We thank each other for our dedication and hardwork through out the process. 
+  - We would like to thank Ms. Eshita Jaiswal, our project mentor, for guiding us through each and every step of the process with knowledge and support. We thank you for your advice, guidance and assistance.
+
+
+* Goals & Motivation
+** To implement a Shopping Portal like web application which supports the following basic features
+*** Seperate Buyer and Seller login & registeration.
+    - It was done using Login Manger feature of Flask. 
+    - Seperate session are maintained.
+    - Maintainance in multi-blueprint environment was indeed a challenging task.
+*** Individual Cart for each buyer.
+    - Cart in-flow with stock of each app.
+    - Carts are interwined which basically means that one user finishing a part of stock before other user affects both of their cart.
+*** On-Purchase and Back-in-Stock email notification support. 
+    - On purchase was added to keep in mind about lack of any payment gateway, in which we could have generated a Invoice page instead but time contraint restricted us.
+*** Individual seller product addition and stock update.
+    - Seller is allowed to add product and update stock for its products using the interface provided on its seller dashboard.
+*** Individual product page
+    - Individual product page with product image, description, add-to-car button, notify button and comment section.
+*** Whole site search feature
+    - Search by tag is supported for user both anonymous and registered to view the desired products. 
+*** Level-1 Comments
+    - Users (Except sellers) can comment (bascially review) products and add a comment for the same which shall be displayed on its indivdual product page.
+*** Category implementation
+    - Products are divided in categories which can viewed by users both registered and anonymous through our main home page.
+    
+      
+* Application Structure
+
+#+BEGIN_FSTREE directory_structure
+      
+.*[[./][shopping-portal]]*
+.. [[./app][app]]
+... [[./app/buyers][Buyer]]
+.... [[./app/buyers/controllers.py][Controller]]
+.... [[./app/buyers/models.py][Model]]
+... [[./app/cart][Cart]]
+.... [[./app/cart/controllers.py][Controller]]
+.... [[./app/cart/models.py][Model]]
+... [[./app/comments][Comments]]
+.... [[./app/comments/controllers.py][Controller]]
+.... [[./app/comments/models.py][Model]]
+... [[./app/notification][Notification]]
+.... [[./app/notification/controllers.py][Controller]]
+.... [[./app/notification/models.py][Model]]
+... [[./app/product][Product]]
+.... [[./app/product/controllers.py][Controller]]
+.... [[./app/product/models.py][Model]]
+... [[./app/sellers][Seller]]
+.... [[./app/sellers/controllers.py][Controller]]
+.... [[./app/sellers/models.py][Model]]
+... [[./app/templates][Templates]]
+... [[./app/static][Static]]
+.. [[./app.db][Database]]
+.. [[./README.md][README]]
+.. [[./CHANGELOG][CHANGELOG]]
+.. [[./LICENSE.md][LICENSE]]
+.. [[./myproject.py][Server]]
+.. [[./config.py][Configuration]]
+.. [[./Requirements.txt][Requirements]]
+.. [[./wsgi.py][BackEnd]]
+
+#+END_FSTREE 
+
+
+* Implementation
+** Flask
+*** Official *Flask documentation* [[http://flask.pocoo.org/docs/0.12/][here]].
+  - This project of shopping portal has been implemented using Flask. Flask is called a micro framework because it does not require particular tools or libraries. 
+  - It has no database abstraction layer, form validation, or any other components where pre-existing third-party libraries provide common functions. 
+  - However, Flask supports extensions that can add application features as if they were implemented in Flask itself. 
+  - Extensions exist for object-relational mappers, form validation, upload handling, various open authentication technologies and several common framework related tools. 
+  - Extensions are updated far more regularly than the core Flask program. 
+  - Simple flask code example
+#+BEGIN_SRC python
+from flask import Flask
+app = Flask(__name__)
+
+@app.route("/")
+def hello():
+    return "Hello World!"
+
+if __name__ == "__main__":
+    app.run()
+#+END_SRC
+  
+** Contains development server and debugger
+*** Server
+    - The information, in the form of a text record, that a Web server sends back to a client's browser in response to receiving an HTTP request. 
+    - The response header contains the date, size and type of file that the server is sending back to the client and also data about the server itself.
+    - The header is attached to the files being sent back to the client.
+    - Running the app in debug mode =app.debug = True= or =app.run(debug=True)= or =FLASK_DEBUG=1 flask run= will show an interactive traceback and console in the browser when there is an error.
+    - We made our server integrating all these concepts, here
+
+#+BEGIN_SRC python
+from app import app as application
+
+@application.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin',
+                         '*')
+    response.headers.add('Access-Control-Max-Age', 0)
+    response.headers.add('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0')    
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Allow-Methods',
+                         'GET, POST, PUT, DELETE')
+    return response
+
+if __name__ == '__main__':
+    application.run(host='0.0.0.0', debug=True)
+#+END_SRC
+
+** Uses *Jinja2* templating
+   - *Jinja2* was used inorder to falicitate usage of a universal supreme base templates that we can use to create new html pages.
+   - This enabled cleaner, short and universal code.
+   - An example of this implementation is given below, which is our user-login.
+#+BEGIN_SRC html
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block body %}
+<link href="static/css/agency.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{url_for('static', filename='product/blogin.css')}}">
+    <div class="container" style="height:100vh">
+ <br/>
+      <form class="form-signin" method="POST" action="/login">
+        <h2 class="form-signin-heading">Please sign in</h2>
+        {{ form.hidden_tag() }}
+        {{ wtf.form_field(form.username) }}
+        {{ wtf.form_field(form.password) }}
+        {{ wtf.form_field(form.remember) }}
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+      </form>
+    </div> 
+<!-- /container -->
+{% endblock %}
+#+END_SRC 
+
+** Support for secure cookies
+   - This module implements a cookie that is not alterable from the client because it adds a checksum the server checks for. 
+   - You can use it as session replacement if all you have is a user id or something to mark a logged in user.
+   - Keep in mind that the data is still readable from the client as a normal cookie is. However you don’t have to store and flush the sessions you have at the server.
+   - Since this security feature has a Pickle bug, we didn't enforce it by default but since we are using werkzeug module our app is totally compatible for it.
+** Comments on Product Page
+*** 1-Level comments were implemented at each product page since project demanded for product reviewing.
+
+#+NAME: comments 
+#+BEGIN_SRC python
+def __init__(self,user_id, body, product_id):
+        self.user_id=user_id
+        self.product_id=product_id
+        self.body=body
+#+END_SRC
+
+*** Our project supports Comment and Product page feature for 2 types of users:
+      1. *Guests*
+      2. *Registered users*
+
+#+NAME: add_comment
+#+BEGIN_SRC python
+@mod_buyers.route('/addComment', methods = ['POST','GET'])
+def addComment():
+    if request.method =='POST':
+        product_id=request.form['proid']
+        body=request.form['body']
+        user_id=request.form['buyerid']
+        product = Product.query.filter_by(id = product_id).first()
+        try:
+            print(product)    
+            comment = Comments(user_id= user_id,  body = body, product_id=product_id)
+            db.session.add(comment)
+            db.session.commit()
+            print("add")
+            return redirect(url_for('buyers.showprod')+'?prodid='+product_id)    
+        except:
+            easygui.msgbox("Failed to add comment", title="Error!")
+    return redirect(url_for('buyers.showallit'))
+#+END_SRC
+** Users - Buyers, Sellers
+   - Anonymous users are allowed to just view the products.
+   - Users can view the product either as a guest or by logging in, after registering as a new buyer, but in order to buy he must be registered buyer.
+     
+#+NAME: for registerd user
+#+BEGIN_SRC python
+   def __init__(self, username, email, password, phone_Number, address, birthdate):
+        self.username = username
+        self.email = email
+        self.phone_Number = phone_Number
+        self.address = address
+        self.birthdate = birthdate
+        self.password= password
+    def __repr__(self):
+        return '<Buyer\'s Id is: %d, Buyer\'s Name is: %r & Buyer\'s Email is: %r>>' %(self.id, self.username, self.email)
+
+#+END_SRC
+
+#+NAME: for guest user
+#+BEGIN_SRC 
+
+#+END_SRC
+
+  - Users (buyer and seller) are identified by its *username*, *email* and *password* .
+#+NAME: login
+#+BEGIN_SRC python
+@mod_buyers.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = Buyers.query.filter_by(username=form.username.data).first()
+        if user:
+            if check_password_hash(user.password, form.password.data):
+                login_user(user, remember=form.remember.data)
+                return redirect(url_for('buyers.showallit'))
+        easygui.msgbox("Wrong Credentials", title="simple gui")
+        return render_template('login.html', form=form)
+    return render_template('login.html', form=form)
+#+END_SRC 
+
+  - Registeration for both seller and buyers have different requirements. Though =Password= in both cases is stored in encrypted form (not in clear-text) to enhace security.
+
+#+NAME: buyer_signup
+#+BEGIN_SRC python 
+@mod_buyers.route('/signup', methods=['GET', 'POST'])
+def signup():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        hashed_password = generate_password_hash(form.password.data, method='sha256')
+        try:
+            new_user = Buyers(username=form.username.data, email=form.email.data, password=hashed_password, phone_Number=form.phone_Number.data, address=form.address.data, birthdate=form.birthdate.data)
+            db.session.add(new_user)
+            db.session.commit()
+            easygui.msgbox("New User Successfully Created", title="simple gui")
+            return redirect(url_for('buyers.login'))
+        except:
+            return render_template('signup.html', form=form)
+    return render_template('signup.html', form=form)
+#+END_SRC
+
+#+NAME: seller_signup
+#+BEGIN_SRC python 
+@mod_sellers.route('/sellersignup',methods=['GET','POST'])
+def seller_signup():
+	form=RegisterForm()
+	if form.validate_on_submit():
+		hashed_password = generate_password_hash(form.password.data, method='sha256')
+		try:
+			new_user = Sellers(username=form.username.data, email=form.email.data, password=hashed_password, phone_Number=form.phone_Number.data, website=form.website.data)
+			db.session.add(new_user)
+			db.session.commit()
+			return '<h1>New user has been created!</h1>'
+		except:
+			return render_template('seller_signup.html', form=form)
+	return render_template('seller_signup.html', form=form)
+#+END_SRC
+
+** Cart
+  - User registered as buyers are given their own cart to do the transactions.
+  - Comments includes
+#+NAME: cart
+#+BEGIN_SRC python
+def __init__(self, buyer_id, product_id, quantity, amount, status,name):
+        self.buyer_id = buyer_id
+        self.product_id = product_id
+        self.quantity = quantity
+        self.amount = amount
+        self.status = status
+        self.name=name
+#+END_SRC
+  - Cart update methods
+#+NAME: add_cart
+#+BEGIN_SRC python
+@mod_buyers.route('/addtocart',methods=['POST','GET'])
+@login_required
+def addcart():
+    if request.method =='POST':
+
+        buyer_id=request.form['buyer_id']
+        product_id=request.form['product_id']
+        quantity=request.form['quantity']
+        name=request.form['name']
+    else:
+        buyer_id=request.args.get('buyer_id')
+        product_id=request.args.get('product_id')
+        quantity=request.args.get('quantity')
+        name=request.args.get('name')
+    
+    prod=Product.query.filter_by(id=product_id).first()
+    amount=int(quantity)*prod.price
+    if int(quantity) > prod.stock:
+        easygui.msgbox("Limited Stock :Please select less items", title="simple gui")
+        return redirect(url_for('buyers.addcart')+'?buyer_id='+buyer_id+'&product_id='+product_id+'&quantity='+quantity+'&name='+name)    
+
+        
+    else:
+        status=True
+        try:
+            cart=Cart(buyer_id=buyer_id,product_id=product_id,quantity=quantity,amount=amount,status=status,name=name)
+            db.session.add(cart)
+            db.session.commit()
+            print("added to cart")
+            return '<h1>added'
+        except:
+            print("cant add")
+            return '<h1>cant add</h1>'
+#+END_SRC
+
+
+#+NAME: view_cart
+#+BEGIN_SRC python
+@mod_buyers.route('/viewcart',methods=['POST','GET'])
+@login_required
+def viewcart():
+    if request.method=='POST':
+        buyer_id=request.form['buyer_id']
+    else:
+        buyer_id=current_user.id
+
+    array=Cart.query.filter_by(buyer_id=buyer_id)
+    return render_template('cart.html',product=array)
+#+END_SRC
+
+#+NAME: delete_cart
+#+BEGIN_SRC python
+@mod_buyers.route('/deletefromcart')
+@login_required
+def delcart():
+    id=request.form['id']
+    cart=Cart.query.filter_by(id=id).first()
+    try:
+
+        db.session.delete(cart)
+        db.session.commit()
+        return redirect(url_for('buyers.viewcart'))
+    except:
+        print("Couldnt delete")
+        return redirect(url_for('buyers.viewcart'))
+#+END_SRC 
+
+#+NAME: update_cart
+#+BEGIN_SRC python
+@mod_buyers.route('/updatecart')
+def updcart():
+    id=request.args.get('id')
+    print(prod)
+    new_stock=request.args.get('quantity')
+
+    cart=Cart.query.filter_by(id=id).first()
+    prod_id=cart.product_id
+    product=Product.query.filter_by(id=prod_id)
+    if new_stock <= product.stock:
+        cart.stock=new_stock
+        try:
+            db.session.commit()
+            return redirect(url_for('buyers.viewcart'))
+        except:
+            return redirect(url_for('buyers.viewcart'))
+
+    else:
+        print("Excess requirement")
+        return redirect(url_for('buyers.viewcart'))
+#+END_SRC
+
+** Notification
+   - Notification feature is for notifying user through email about the item (which is back in stock) he had requested which was out of stock previously.
+   - Our simple route is shown below
+#+NAME: notification_buyer_route
+#+BEGIN_SRC python
+@mod_buyers.route('/sendemailnotification',methods=['GET','POST'])
+def sendemail():
+    if request.method =='GET':
+        pid=request.args.get("pid")
+        bid=request.args.get("bid")
+    product=Product.query.filter_by(id=pid).first()
+    
+    if product.stock is not 0:
+        easygui.msgbox("Sorry the item is currently in stock! But not for longer!!", title="In stock item")
+        
+        return redirect(url_for('buyers.showprod')+'?prodid='+pid)
+
+    else:
+        noti=Notification(buyer_id=bid,product_id=pid)
+        db.session.add(noti)
+        db.session.commit()
+        easygui.msgbox("You will recieve the notification <soon!></soon!>", title="We have just become richer")
+        return redirect(url_for('buyers.showprod')+'?prodid='+pid)
+#+END_SRC
+   - A mail is sent to user on the id he had registered using *Mail* feature of *Flask*. [[https://pythonhosted.org/Flask-Mail/][Documentation-Flask-Mail]]
+   - Comment has its seperate model for storing the info since notification has to be sent after seller updates the stock.
+   - We could have further improved this feature or if we quote the word made a better use of it, then we could have sent an eamil to the user at every cart-buy success/error process.
+ 
+** Deployment
+   - Deployment work was totally based on our tutorial session covered in the very last *ITWS-2 Lab Class*.
+   - Pascal material was keenly studied followed step by step along with some youtube tutorials to get the app deployed.
+   - [[http://pascal.iiit.ac.in/~itws2/docs/labs/web-security/index.html][Tutorial on Web Security and Deployment]]
+
+
+* Future of the app for us
+** We don't plan to dump this app after the evaluation, instead we have agreed upon a lot of features that will be missed in not so ready but still a magnificent app.
+*** Google Captcha for registeration and sign-in
+    - Implementation was tried but couldn't get it to work after deployment.
+*** Transaction linking
+    - We will be working whenever free to make this app a lot closer to current large ecommerce flagship.
+*** User Gravatar
+    - Provide user a proper dashboard.
+    - This was skipped in this app due to shortage of time.  
+*** Smart-phone Compatibility
+    - Make an android app that could use webview rendering to make the deployed app usable through smart-phones.
+*** Extending reviews
+    - Adding 5 star reviews
+    - Multilevel comments
+
+
