@@ -20,7 +20,7 @@ itsdangerous==0.24
 Jinja2==2.9.5
 louis==2.6.4
 lxc==1.0.9
-lxml==3.5.0
+lxml==4.6.5
 Mako==1.0.3
 MarkupSafe==0.23
 pyparsing==2.1.10
